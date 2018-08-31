@@ -1,4 +1,5 @@
 SE-131 Group Project - JSONx
+https://travis-ci.org/SE-131-JSONx/jsonx-be.svg?branch=cit
 
 Other modules used are listed below; 
 - sqlalchemy
