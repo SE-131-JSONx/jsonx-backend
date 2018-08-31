@@ -10,11 +10,11 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = "sqlite://"
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:root@localhost/jsonx"
     SQLALCHEMY_ECHO = False
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite://"
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:root@localhost/jsonx"
     SQLALCHEMY_ECHO = False

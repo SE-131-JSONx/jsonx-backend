@@ -1,3 +1,5 @@
+faker
+bcrypt
 click==6.6
 Flask==0.12.4
 Flask-SQLAlchemy==2.1
@@ -11,3 +13,4 @@ nose2==0.6.5
 six==1.10.0
 SQLAlchemy==1.1.2
 Werkzeug==0.11.11
+PyMySQL

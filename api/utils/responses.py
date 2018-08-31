@@ -24,7 +24,6 @@ MISSING_PARAMETERS_422 = {
 BAD_REQUEST_400 = {
     "http_code": 400,
     "code": "badRequest",
-    "message": "Bad request"
 }
 
 SERVER_ERROR_500 = {
@@ -52,8 +51,8 @@ NOT_FOUND_HANDLER_404 = {
 }
 
 SUCCESS_200 = {
-    'http_code': 200,
-    'code': 'success'
+    "http_code": 200,
+    "message": "Success"
 }
 
 
@@ -62,10 +61,11 @@ def response_with(response, value=None, message=None, error=None, headers={}, pa
     if value is not None:
         result.update(value)
 
-    if response.get('message', None) is not None:
+    if response.get('message', None):
         result.update({'message': response['message']})
 
-    result.update({'code': response['code']})
+    if response.get('code', None):
+        result.update({'code': response['code']})
 
     if error is not None:
         result.update({'errors': error})
@@ -74,6 +74,6 @@ def response_with(response, value=None, message=None, error=None, headers={}, pa
         result.update({'pagination': pagination})
 
     headers.update({'Access-Control-Allow-Origin': '*'})
-    headers.update({'server': 'Flask Starter API'})
+    headers.update({'server': 'JSONx'})
 
     return make_response(jsonify(result), response['http_code'], headers)
