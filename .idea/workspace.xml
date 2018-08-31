@@ -2,25 +2,33 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8169b502-18e5-4a2c-a36b-0dc6b369f828" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jsonx-be.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/utils/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/models/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/models/model_author.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/models/model_book.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/routes/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/routes/routes_general.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/routes/tests/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/routes/tests/test_routes_general.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/utils/config.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/utils/database.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/utils/factory.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/utils/responses.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/utils/test_base.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/requirements.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/models/model_author.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/models/model_author.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/models/model_book.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/models/model_book.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/routes/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/routes/routes_general.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/routes_general.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/routes/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/routes/tests/test_routes_general.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/tests/test_routes_general.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/utils/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/utils/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/utils/database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/utils/factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/utils/factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/utils/responses.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/utils/responses.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/utils/test_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/utils/test_base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -35,11 +43,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="4" column="13" lean-forward="true" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+            <state relative-caret-position="105">
+              <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
             </state>
           </provider>
         </entry>
@@ -58,6 +66,15 @@
           <provider selected="true" editor-type-id="text-editor">
             <state>
               <caret column="16" lean-forward="true" selection-start-column="16" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="requirements.txt" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/requirements.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
             </state>
           </provider>
         </entry>
@@ -87,6 +104,7 @@
         <option value="$PROJECT_DIR$/.travis.yml" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/requirements.txt" />
       </list>
     </option>
   </component>
@@ -228,8 +246,8 @@
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.32961783" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32961783" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.32961783" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2536349" />
+      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.32961783" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2536349" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="SonarLint" order="7" />
       <window_info anchor="right" id="Database" order="3" />
@@ -334,13 +352,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="11" lean-forward="true" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Dockerfile">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -385,8 +396,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="13" lean-forward="true" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        <state relative-caret-position="105">
+          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
         </state>
       </provider>
     </entry>
