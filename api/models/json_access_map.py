@@ -20,7 +20,7 @@ class JsonAccessMap(db.Model):
 
     def __init__(self, user, json, type):
         self.user = user
-        #self.json = json
+        self.json = json
         self.type = type
 
     def create(self):
