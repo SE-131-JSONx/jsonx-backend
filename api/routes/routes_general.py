@@ -5,6 +5,7 @@ from flask import Blueprint
 from flask import request
 from api.models.user import UserSchema, User
 from api.models.json import JsonSchema, Json
+from api.models.json_access_map import JsonAccessMapSchema, JsonAccessMap
 from api.utils.auth import authenticate_jwt, generate_jwt
 from api.utils.responses import response_with
 from api.utils import responses as resp

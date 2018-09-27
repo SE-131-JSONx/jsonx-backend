@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from sqlalchemy import ForeignKeyConstraint
+
+from sqlalchemy import ForeignKey
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -9,19 +10,17 @@ from marshmallow import fields
 class JsonAccessMap(db.Model):
     __tablename__ = 'json_access_map'
 
-    user = db.Table('user')
-
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    user = db.Column(db.BigInteger, ForeignKeyConstraint(user.id))
-    json = db.Column(db.BigInteger, ForeignKeyConstraint(json.id))
-    type = db.Column(db.TinyInt)
+    user = db.Column(db.BigInteger, ForeignKey("user.id"))
+    json = db.Column(db.BigInteger, ForeignKey("json.id"))
+    type = db.Column(db.Integer)
     created = db.Column(db.DateTime, server_default=db.func.now())
     updated = db.Column(db.DateTime, onupdate=db.func.now())
 
-    def __init__(self, user, json, type):
+    def __init__(self, user, json, _type):
         self.user = user
         self.json = json
-        self.type = type
+        self.type = _type
 
     def create(self):
         db.session.add(self)
@@ -37,6 +36,6 @@ class JsonAccessMapSchema(ModelSchema):
     id = fields.Integer(dump_only=True)
     user = fields.Integer(required=True)
     json = fields.Integer(required=True)
-    type = fields.TinyInt(required=True)
-    created = fields.DateTime(dump_only=True)
-    updated = fields.DateTime(dump_only=True)
+    type = fields.Integer(required=True)
+    created = fields.String(dump_only=True)
+    updated = fields.String(dump_only=True)
