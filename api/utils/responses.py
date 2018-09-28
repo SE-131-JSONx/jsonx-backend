@@ -64,6 +64,9 @@ def response_with(response, value=None, message=None, error=None, headers={}, pa
     if response.get('message', None):
         result.update({'message': response['message']})
 
+    if message:
+        result.update({'message': message})
+
     if response.get('code', None):
         result.update({'code': response['code']})
 

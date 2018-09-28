@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 import jwt
 from flask import request
-from api.utils.exception import AuthRequired
+from api.utils.exception import AuthRequired, DecodeError, ExpiredSignatureError, BaseJWTError
 
 JWT_SECRET = os.environ.get("JWT_SECRET", "secret")
 JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
@@ -29,13 +29,14 @@ def _validate_jwt(headers):
     authorization = headers.get("Authorization", None)
     if authorization is None:
         raise AuthRequired
-    payload = None
     try:
-        payload = jwt.decode(authorization, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-    except (jwt.DecodeError, jwt.ExpiredSignatureError) as e:
-        raise e
-    finally:
-        return payload
+        JWT(jwt.decode(authorization, JWT_SECRET, algorithms=[JWT_ALGORITHM]))
+    except jwt.DecodeError:
+        raise DecodeError
+    except jwt.ExpiredSignatureError:
+        raise ExpiredSignatureError
+    except Exception:
+        raise BaseJWTError
 
 
 def generate_jwt(user):
@@ -48,3 +49,13 @@ def generate_jwt(user):
     }
     token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
     return token.decode('utf-8')
+
+
+class JWT:
+    details = {}
+
+    def __init__(self, _jwt):
+        """
+        :param _jwt:
+        """
+        JWT.details = _jwt
