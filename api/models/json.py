@@ -28,7 +28,7 @@ class JsonSchema(ModelSchema):
         model = Json
         sqla_session = db.session
 
-    id = fields.Integer(dump_onyl=True)
+    id = fields.Integer(dump_only=True)
     data = fields.String(required=True)
     created = fields.String(dump_only=True)
     updated = fields.String(dump_only=True)
