@@ -1,5 +1,6 @@
 import os
 
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -7,16 +8,16 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://"
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI", "mysql+pymysql://")
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://"
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:root@localhost/jsonx"
     SQLALCHEMY_ECHO = False
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI", "mysql+pymysql://root:root@localhost/jsonx")
     SQLALCHEMY_ECHO = False
