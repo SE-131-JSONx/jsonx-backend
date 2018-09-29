@@ -3,8 +3,10 @@
 
 from api.models.json import Json, JsonSchema
 from api.models.user import User
-from api.routes.tests.test_routes_general import fake
 from api.utils.database import db
+from faker import Faker
+
+fake = Faker()
 
 
 def create_users():

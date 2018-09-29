@@ -5,9 +5,6 @@ import json
 from api.routes.tests.utils.db_operation import create_users, create_json, delete_users, delete_json
 from api.utils.constants import notFound, permission
 from api.utils.test_base import BaseTestCase
-from faker import Faker
-
-fake = Faker()
 
 
 class TestUser(BaseTestCase):
