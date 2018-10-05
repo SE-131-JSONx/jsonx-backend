@@ -164,7 +164,7 @@ def get_team(team_id):
         return response_with(resp.SERVER_ERROR_500)
 
 
-@route_path_general.route('/v1.0/team/<team_id>', methods=['put'])
+@route_path_general.route('/v1.0/team/<team_id>', methods=['PUT'])
 @authenticate_jwt
 def update_team(team_id):
     try:
@@ -198,5 +198,29 @@ def update_team(team_id):
     except IntegrityError:
         message = exists.format("Name")
         return response_with(resp.INVALID_INPUT_422, message=message)
+    except Exception as e:
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/team/<team_id>', methods=['DELETE'])
+@authenticate_jwt
+def delete_team(team_id):
+    try:
+        # validate team exists
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id'], type=0).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # delete team
+        team.delete()
+
+        return response_with(resp.SUCCESS_200)
     except Exception as e:
         return response_with(resp.SERVER_ERROR_500)
