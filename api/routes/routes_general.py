@@ -122,3 +122,38 @@ def create_team():
         return response_with(resp.SUCCESS_200, value={"team": result})
     except Exception as e:
         return response_with(resp.INVALID_INPUT_422)
+
+
+@route_path_general.route('/v1.0/team/<team_id>', methods=['GET'])
+@authenticate_jwt
+def get_team(team_id):
+    try:
+        # validate team exists
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id']).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # response details
+        team_schema = TeamSchema()
+        team_data, error = team_schema.dump(team)
+        team_member_schema = TeamMemberMapSchema()
+        team_member_data, error = team_member_schema.dump(access)
+
+        val = {
+            'id': team_data['id'],
+            'name': team_data['name'],
+            'type': team_member_data['type'],
+            'created': team_data['created'],
+            'updated': team_data['updated']
+        }
+
+        return response_with(resp.SUCCESS_200, value=val)
+    except Exception as e:
+        return response_with(resp.SERVER_ERROR_500)
