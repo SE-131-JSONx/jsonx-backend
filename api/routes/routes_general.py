@@ -17,6 +17,11 @@ from api.utils import responses as resp
 route_path_general = Blueprint("route_path_general", __name__)
 
 
+"""
+USER
+"""
+
+
 @route_path_general.route('/v1.0/user', methods=['POST'])
 def create_user():
     try:
@@ -48,6 +53,11 @@ def login():
         return response_with(resp.SUCCESS_200, value={"user": user, "token": token})
     except Exception as e:
         return response_with(resp.SERVER_ERROR_500)
+
+
+"""
+JSON
+"""
 
 
 @route_path_general.route('/v1.0/json/<json_id>', methods=['GET'])
@@ -83,3 +93,21 @@ def get_json(json_id):
         return response_with(resp.SUCCESS_200, value=val)
     except Exception as e:
         return response_with(resp.SERVER_ERROR_500)
+
+
+"""
+TEAM
+"""
+
+
+@route_path_general.route('/v1.0/team', methods=['POST'])
+@authenticate_jwt
+def create_team():
+    try:
+        data = request.get_json()
+        team_schema = TeamSchema()
+        team, error = team_schema.load(data)
+        result = team_schema.dump(team.create()).data
+        return response_with(resp.SUCCESS_200, value={"team": result})
+    except Exception as e:
+        return response_with(resp.INVALID_INPUT_422)

@@ -10,7 +10,7 @@ class Team(db.Model):
     __tablename__ = 'team'
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255))
+    name = db.Column(db.String(255), unique=True)
     created = db.Column(db.DateTime, server_default=db.func.now())
     updated = db.Column(db.DateTime, onupdate=db.func.now())
 
