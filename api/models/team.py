@@ -11,7 +11,6 @@ class Team(db.Model):
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255))
-    password = db.Column(db.String(255))
     created = db.Column(db.DateTime, server_default=db.func.now())
     updated = db.Column(db.DateTime, onupdate=db.func.now())
 
