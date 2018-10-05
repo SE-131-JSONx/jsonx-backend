@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import logging
 
 from flask import Blueprint
 from flask import request
@@ -32,6 +33,7 @@ def create_user():
         result = user_schema.dump(user.create()).data
         return response_with(resp.SUCCESS_200, value={"user": result})
     except Exception as e:
+        logging.error(e)
         return response_with(resp.INVALID_INPUT_422)
 
 
@@ -53,6 +55,7 @@ def login():
         token = generate_jwt(user)
         return response_with(resp.SUCCESS_200, value={"user": user, "token": token})
     except Exception as e:
+        logging.error(e)
         return response_with(resp.SERVER_ERROR_500)
 
 
@@ -93,6 +96,7 @@ def get_json(json_id):
 
         return response_with(resp.SUCCESS_200, value=val)
     except Exception as e:
+        logging.error(e)
         return response_with(resp.SERVER_ERROR_500)
 
 
@@ -125,6 +129,7 @@ def create_team():
         message = exists.format("Name")
         return response_with(resp.INVALID_INPUT_422, message=message)
     except Exception as e:
+        logging.error(e)
         return response_with(resp.INVALID_INPUT_422)
 
 
@@ -160,6 +165,7 @@ def get_team(team_id):
 
         return response_with(resp.SUCCESS_200, value=val)
     except Exception as e:
+        logging.error(e)
         return response_with(resp.SERVER_ERROR_500)
 
 
@@ -198,6 +204,7 @@ def update_team(team_id):
         message = exists.format("Name")
         return response_with(resp.INVALID_INPUT_422, message=message)
     except Exception as e:
+        logging.error(e)
         return response_with(resp.SERVER_ERROR_500)
 
 
@@ -222,4 +229,88 @@ def delete_team(team_id):
 
         return response_with(resp.SUCCESS_200)
     except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/team/<team_id>/access', methods=['POST'])
+@authenticate_jwt
+def add_team_member(team_id):
+    try:
+        data = request.get_json()
+
+        # require user
+        user = data.get("user")
+        if not user:
+            message = required.format("User")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        # validate team exists
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate user exists
+        user_exists = User.query.filter_by(id=user).first()
+        if not user_exists:
+            message = notFound.format("User")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id'], type=0).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # if user does not have access, grant access
+        access_already_exists = TeamMemberMap.query.filter_by(team=team_id, user=user).first()
+        if not access_already_exists:
+            # add access
+            team_member_data = {
+                "user": user,
+                "team": team_id,
+                "_type": 1
+            }
+
+            team_member_map = TeamMemberMapSchema()
+            team_member, error = team_member_map.load(team_member_data)
+            team_member.create()
+
+        return response_with(resp.SUCCESS_200)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/team/<team_id>/access/<user_id>', methods=['DELETE'])
+@authenticate_jwt
+def remove_team_member(team_id, user_id):
+    try:
+        # validate team exists
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate user exists
+        user_exists = User.query.filter_by(id=user_id).first()
+        if not user_exists:
+            message = notFound.format("User")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id'], type=0).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # if team member exists, delete
+        team_member = TeamMemberMap.query.filter_by(team=team_id, user=user_id).first()
+        if team_member:
+            team_member.delete()
+
+        return response_with(resp.SUCCESS_200)
+    except Exception as e:
+        logging.error(e)
         return response_with(resp.SERVER_ERROR_500)

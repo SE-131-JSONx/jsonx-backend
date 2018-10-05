@@ -29,6 +29,15 @@ class TeamMemberMap(db.Model):
             return self
         except Exception as e:
             logging.error(e)
+            db.session.rollback()
+            raise
+
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except Exception as e:
+            logging.error(e)
             raise
 
 
