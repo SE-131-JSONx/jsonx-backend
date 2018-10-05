@@ -12,6 +12,10 @@ fake = Faker()
 
 
 def create_users(num=1):
+    """
+    :param num: int, number of user to create
+    :return: [List: User]
+    """
     users = [{
         "name": fake.first_name(),
         "surname": fake.last_name(),

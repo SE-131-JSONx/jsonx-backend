@@ -77,8 +77,8 @@ class TestJson(BaseTestCase):
         self._json = create_json()
 
     def tearDown(self):
-            delete_users(self.users)
-            delete_json(self._json)
+        delete_users(self.users)
+        delete_json(self._json)
 
     def test_json_not_found(self):
         login = {
