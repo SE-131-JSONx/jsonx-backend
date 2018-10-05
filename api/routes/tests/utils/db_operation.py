@@ -11,14 +11,14 @@ from faker import Faker
 fake = Faker()
 
 
-def create_users():
+def create_users(num=1):
     users = [{
         "name": fake.first_name(),
         "surname": fake.last_name(),
         "email": fake.ascii_company_email(),
         "login": fake.user_name(),
         "password": fake.bban()
-    }]
+    } for _ in range(0, num)]
     for user in users:
         User(name=user["name"],
              surname=user["surname"],

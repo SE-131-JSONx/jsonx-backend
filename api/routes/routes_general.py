@@ -4,7 +4,6 @@
 from flask import Blueprint
 from flask import request
 from sqlalchemy.exc import IntegrityError
-
 from api.models.user import UserSchema, User
 from api.models.json import JsonSchema, Json
 from api.models.json_access_map import JsonAccessMapSchema, JsonAccessMap
