@@ -166,7 +166,7 @@ def remove_team_json_access(json_id, team_id):
 
         # validate access to json
         access = JsonAccessMap.query\
-            .filter_by(json=json_id, user=JWT.details['user_id'], type=JsonAccessMapType.OWNER.value)\
+            .filter_by(json=json_id, user=JWT.details['user_id'], type=TeamMemberType.OWNER.value)\
             .first()
         if not access:
             message = permission
