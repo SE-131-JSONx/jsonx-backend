@@ -27,6 +27,15 @@ class Team(db.Model):
             db.session.rollback()
             raise
 
+    def update(self, name):
+        try:
+            if name != self.name:
+                self.name = name
+                db.session.commit()
+        except Exception as e:
+            logging.error(e)
+            raise
+
 
 class TeamSchema(ModelSchema):
     class Meta(ModelSchema.Meta):
