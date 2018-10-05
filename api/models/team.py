@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
+from api.models.team_member_map import TeamMemberMap
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -22,6 +23,26 @@ class Team(db.Model):
             db.session.add(self)
             db.session.commit()
             return self
+        except Exception as e:
+            logging.error(e)
+            db.session.rollback()
+            raise
+
+    def update(self, name):
+        try:
+            if name != self.name:
+                self.name = name
+                db.session.commit()
+        except Exception as e:
+            logging.error(e)
+            db.session.rollback()
+            raise
+
+    def delete(self):
+        try:
+            db.session.query(TeamMemberMap).filter(TeamMemberMap.team == self.id).delete()
+            db.session.delete(self)
+            db.session.commit()
         except Exception as e:
             logging.error(e)
             db.session.rollback()

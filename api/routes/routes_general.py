@@ -3,6 +3,7 @@
 
 from flask import Blueprint
 from flask import request
+from sqlalchemy.exc import IntegrityError
 from api.models.user import UserSchema, User
 from api.models.json import JsonSchema, Json
 from api.models.json_access_map import JsonAccessMapSchema, JsonAccessMap
@@ -10,7 +11,7 @@ from api.models.team import TeamSchema, Team
 from api.models.team_member_map import TeamMemberMapSchema, TeamMemberMap
 from api.models.team_json_map import TeamJsonMapSchema, TeamJsonMap
 from api.utils.auth import authenticate_jwt, generate_jwt, JWT
-from api.utils.constants import notFound, permission
+from api.utils.constants import notFound, permission, required, exists
 from api.utils.responses import response_with
 from api.utils import responses as resp
 
@@ -120,6 +121,9 @@ def create_team():
         team_member.create()
 
         return response_with(resp.SUCCESS_200, value={"team": result})
+    except IntegrityError:
+        message = exists.format("Name")
+        return response_with(resp.INVALID_INPUT_422, message=message)
     except Exception as e:
         return response_with(resp.INVALID_INPUT_422)
 
@@ -155,5 +159,67 @@ def get_team(team_id):
         }
 
         return response_with(resp.SUCCESS_200, value=val)
+    except Exception as e:
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/team/<team_id>', methods=['PUT'])
+@authenticate_jwt
+def update_team(team_id):
+    try:
+        data = request.get_json()
+
+        name = data.get("name")
+        if not name:
+            message = required.format("Name")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        # validate team exists
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id']).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # update team
+        team.update(name)
+
+        # response details
+        team_schema = TeamSchema()
+        team_data, error = team_schema.dump(team)
+
+        return response_with(resp.SUCCESS_200, value={"team": team_data})
+    except IntegrityError:
+        message = exists.format("Name")
+        return response_with(resp.INVALID_INPUT_422, message=message)
+    except Exception as e:
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/team/<team_id>', methods=['DELETE'])
+@authenticate_jwt
+def delete_team(team_id):
+    try:
+        # validate team exists
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id'], type=0).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # delete team
+        team.delete()
+
+        return response_with(resp.SUCCESS_200)
     except Exception as e:
         return response_with(resp.SERVER_ERROR_500)
