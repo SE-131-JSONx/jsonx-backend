@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import logging
 
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
@@ -27,9 +28,14 @@ class User(db.Model):
         self.password = self._hash(password)
 
     def create(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return self
+        except Exception as e:
+            logging.error(e)
+            db.session.rollback()
+            raise
 
     @staticmethod
     def _hash(password):
