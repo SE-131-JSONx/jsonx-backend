@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
-
 from flask import Blueprint
 from flask import request
 from sqlalchemy.exc import IntegrityError
@@ -13,6 +12,7 @@ from api.models.team_member_map import TeamMemberMapSchema, TeamMemberMap
 from api.models.team_json_map import TeamJsonMapSchema, TeamJsonMap
 from api.utils.auth import authenticate_jwt, generate_jwt, JWT
 from api.utils.constants import notFound, permission, required, exists
+from api.utils.enums import TeamMemberType, JsonAccessMapType
 from api.utils.responses import response_with
 from api.utils import responses as resp
 
@@ -100,6 +100,89 @@ def get_json(json_id):
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/json/<json_id>/team/<team_id>', methods=['POST'])
+@authenticate_jwt
+def give_team_json_access(json_id, team_id):
+    try:
+        # validate json exists
+        json = Json.query.filter_by(id=json_id).first()
+        if not json:
+            message = notFound.format("JSON")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate team exists
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to json
+        access = JsonAccessMap.query\
+            .filter_by(json=json_id, user=JWT.details['user_id'], type=JsonAccessMapType.OWNER.value)\
+            .first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # if user does not have access, grant access
+        access_already_exists = TeamJsonMap.query.filter_by(team=team_id, json=json_id).first()
+        if not access_already_exists:
+            # add access
+            team_access_data = {
+                "team": team_id,
+                "json": json_id,
+            }
+
+            team_json_json_map = TeamJsonMapSchema()
+            team_json, error = team_json_json_map.load(team_access_data)
+            team_json.create()
+
+        val = {
+            "team": team_id,
+            "json": json_id
+        }
+
+        return response_with(resp.SUCCESS_200, value=val)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/json/<json_id>/team/<team_id>', methods=['DELETE'])
+@authenticate_jwt
+def remove_team_json_access(json_id, team_id):
+    try:
+        # validate json exists
+        json = Json.query.filter_by(id=json_id).first()
+        if not json:
+            message = notFound.format("JSON")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate team exists
+        team = Team.query.filter_by(id=team_id).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to json
+        access = JsonAccessMap.query\
+            .filter_by(json=json_id, user=JWT.details['user_id'], type=JsonAccessMapType.OWNER.value)\
+            .first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # if team has access, remove access
+        json_access = TeamJsonMap.query.filter_by(team=team_id, json=json_id).first()
+        if json_access:
+            json_access.delete()
+
+        return response_with(resp.SUCCESS_200)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
 """
 TEAM
 """
@@ -117,7 +200,7 @@ def create_team():
         team_member_data = {
             "user": JWT.details['user_id'],
             "team": result['id'],
-            "_type": 0
+            "_type": TeamMemberType.OWNER.value
         }
 
         team_member_map = TeamMemberMapSchema()
@@ -219,7 +302,9 @@ def delete_team(team_id):
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # validate access to team
-        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id'], type=0).first()
+        access = TeamMemberMap.query\
+            .filter_by(team=team_id, user=JWT.details['user_id'], type=TeamMemberType.OWNER.value)\
+            .first()
         if not access:
             message = permission
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
@@ -258,7 +343,9 @@ def add_team_member(team_id):
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # validate access to team
-        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id'], type=0).first()
+        access = TeamMemberMap.query\
+            .filter_by(team=team_id, user=JWT.details['user_id'], type=TeamMemberType.OWNER.value)\
+            .first()
         if not access:
             message = permission
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
@@ -270,7 +357,7 @@ def add_team_member(team_id):
             team_member_data = {
                 "user": user,
                 "team": team_id,
-                "_type": 1
+                "_type": TeamMemberType.MEMBER.value
             }
 
             team_member_map = TeamMemberMapSchema()
@@ -300,7 +387,9 @@ def remove_team_member(team_id, user_id):
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # validate access to team
-        access = TeamMemberMap.query.filter_by(team=team_id, user=JWT.details['user_id'], type=0).first()
+        access = TeamMemberMap.query\
+            .filter_by(team=team_id, user=JWT.details['user_id'], type=TeamMemberType.OWNER.value) \
+            .first()
         if not access:
             message = permission
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
