@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import logging
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -18,9 +18,14 @@ class Team(db.Model):
         self.name = name
 
     def create(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return self
+        except Exception as e:
+            logging.error(e)
+            db.session.rollback()
+            raise
 
 
 class TeamSchema(ModelSchema):
