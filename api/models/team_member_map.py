@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import logging
 from sqlalchemy import ForeignKey
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
@@ -23,9 +23,13 @@ class TeamMemberMap(db.Model):
         self.type = _type
 
     def create(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return self
+        except Exception as e:
+            logging.error(e)
+            raise
 
 
 class TeamMemberMapSchema(ModelSchema):
@@ -36,6 +40,6 @@ class TeamMemberMapSchema(ModelSchema):
     id = fields.Integer(dump_only=True)
     user = fields.Integer(required=True)
     team = fields.Integer(required=True)
-    type = fields.Integer(required=True)
+    _type = fields.Integer(required=True)
     created = fields.String(dump_only=True)
     updated = fields.String(dump_only=True)

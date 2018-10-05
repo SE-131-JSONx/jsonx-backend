@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from api.models.json import Json, JsonSchema
+from api.models.team import Team
+from api.models.team_member_map import TeamMemberMap
 from api.models.user import User
 from api.utils.database import db
 from faker import Faker
@@ -56,4 +58,15 @@ def get_json_id(data):
 
 def delete_json(_json):
     db.session.query(Json).filter(Json.id.in_([j['id'] for j in _json])).delete(synchronize_session=False)
+    db.session.commit()
+
+
+def delete_teams(teams):
+    db.session.query(Team).filter(Team.id.in_([team for team in teams])).delete(synchronize_session=False)
+
+
+def delete_team_members(users):
+    users = db.session.query(User.id).filter(User.login.in_([user["login"] for user in users]))
+
+    db.session.query(TeamMemberMap).filter(TeamMemberMap.user.in_(users)).delete(synchronize_session=False)
     db.session.commit()

@@ -108,6 +108,17 @@ def create_team():
         team_schema = TeamSchema()
         team, error = team_schema.load(data)
         result = team_schema.dump(team.create()).data
+
+        team_member_data = {
+            "user": JWT.details['user_id'],
+            "team": result['id'],
+            "_type": 0
+        }
+
+        team_member_map = TeamMemberMapSchema()
+        team_member, error = team_member_map.load(team_member_data)
+        team_member.create()
+
         return response_with(resp.SUCCESS_200, value={"team": result})
     except Exception as e:
         return response_with(resp.INVALID_INPUT_422)
