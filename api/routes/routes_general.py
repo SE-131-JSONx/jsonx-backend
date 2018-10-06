@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import json
 import logging
 from flask import Blueprint
 from flask import request
@@ -11,7 +12,7 @@ from api.models.team import TeamSchema, Team
 from api.models.team_member_map import TeamMemberMapSchema, TeamMemberMap
 from api.models.team_json_map import TeamJsonMapSchema, TeamJsonMap
 from api.utils.auth import authenticate_jwt, generate_jwt, JWT
-from api.utils.constants import notFound, permission, required, exists
+from api.utils.constants import notFound, permission, required, exists, invalid
 from api.utils.enums import TeamMemberType, JsonAccessMapType
 from api.utils.responses import response_with
 from api.utils import responses as resp
@@ -62,6 +63,51 @@ def login():
 """
 JSON
 """
+
+
+@route_path_general.route('/v1.0/json/save', methods=['POST'])
+@authenticate_jwt
+def save_json():
+
+    try:
+        data = request.get_json()
+        # validate access to json
+        access = JsonAccessMap.query.filter_by(json=data, user=JWT.details['user_id']).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate json syntax
+        json.loads(data)
+
+        # save json in json table
+        json_schema = JsonSchema()
+        _json, error = json_schema.load(data)
+        result = json_schema.dump(_json.create()).data
+
+        # save an entry in json_access_map
+        json_access_schema = JsonAccessMapSchema()
+        json_access_data = {
+            "user": JWT.details('user_id'),
+            "json": result['id']
+        }
+        json_access, error = json_access_schema.load(json_access_data)
+        json_access.create()
+
+        val = {
+            "id": int,
+            "message": "Success"
+        }
+
+        return response_with(resp.SUCCESS_200, value=val)
+    except ValueError as e:
+        logging.error(e)
+
+        msg = invalid.format("JSON")
+        return response_with(resp.INVALID_INPUT_422, message=msg)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
 
 
 @route_path_general.route('/v1.0/json/<json_id>', methods=['GET'])
