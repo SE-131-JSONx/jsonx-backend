@@ -36,6 +36,6 @@ class JsonAccessMapSchema(ModelSchema):
     id = fields.Integer(dump_only=True)
     user = fields.Integer(required=True)
     json = fields.Integer(required=True)
-    type = fields.Integer(required=True)
+    _type = fields.Integer(required=True)
     created = fields.String(dump_only=True)
     updated = fields.String(dump_only=True)
