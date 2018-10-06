@@ -71,11 +71,6 @@ def save_json():
 
     try:
         data = request.get_json()
-        # validate access to json
-        access = JsonAccessMap.query.filter_by(json=data, user=JWT.details['user_id']).first()
-        if not access:
-            message = permission
-            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # validate json syntax
         json.loads(data)
