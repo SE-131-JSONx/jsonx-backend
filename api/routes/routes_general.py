@@ -73,7 +73,7 @@ def save_json():
         data = request.get_json()
 
         # validate json syntax
-        json.loads(data)
+        json.loads(data['data'])
 
         # save json in json table
         json_schema = JsonSchema()
@@ -83,14 +83,15 @@ def save_json():
         # save an entry in json_access_map
         json_access_schema = JsonAccessMapSchema()
         json_access_data = {
-            "user": JWT.details('user_id'),
-            "json": result['id']
+            "user": JWT.details['user_id'],
+            "json": result['id'],
+            "_type": JsonAccessMapType.OWNER.value
         }
         json_access, error = json_access_schema.load(json_access_data)
         json_access.create()
 
         val = {
-            "id": int,
+            "id": result['id'],
             "message": "Success"
         }
 
