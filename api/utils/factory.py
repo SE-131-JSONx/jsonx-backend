@@ -4,6 +4,7 @@
 import logging
 import sys
 from flask import Flask
+from flask_cors import CORS
 from api.utils.database import db
 from api.utils.exception import AuthRequired, ExpiredSignatureError, DecodeError, BaseJWTError
 from api.utils.responses import response_with
@@ -13,6 +14,7 @@ from api.routes.routes_general import route_path_general
 
 def create_app(config):
     app = Flask(__name__)
+    CORS(app)
 
     app.config.from_object(config)
 
