@@ -94,6 +94,52 @@ def get_user_details(uid):
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/user/<uid>', methods=['PUT'])
+@authenticate_jwt
+def update_user(uid):
+    try:
+        data = request.get_json()
+
+        name = data.get("name")
+        if not name:
+            message = required.format("Name")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        surname = data.get("surname")
+        if not surname:
+            message = required.format("Surname")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        email = data.get("email")
+        if not email:
+            message = required.format("Email")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        # validate user exists
+        user = User.query.filter_by(id=uid).first()
+        if not user:
+            message = notFound.format("User")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to user
+        access = User.query.filter_by(id=JWT.details['user_id']).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # update user
+        user.update(name, surname, email)
+
+        # response details
+        return get_user_details(uid)
+    except IntegrityError:
+        message = exists.format("Name")
+        return response_with(resp.INVALID_INPUT_422, message=message)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
 """
 JSON
 """

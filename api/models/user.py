@@ -37,6 +37,25 @@ class User(db.Model):
             db.session.rollback()
             raise
 
+    def update(self, name, surname, email):
+        try:
+            commit = False
+            if name != self.name:
+                self.name = name
+                commit = True
+            if surname != self.surname:
+                self.surname = surname
+                commit = True
+            if email != self.email:
+                self.email = email
+                commit = True
+            if commit:
+                db.session.commit()
+        except Exception as e:
+            logging.error(e)
+            db.session.rollback()
+            raise
+
     @staticmethod
     def _hash(password):
         """Hashes the password
