@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import json
 import logging
 from flask import Blueprint
@@ -55,6 +56,39 @@ def login():
         user, error = user_schema.dump(fetched)
         token = generate_jwt(user)
         return response_with(resp.SUCCESS_200, value={"user": user, "token": token})
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/user/<uid>', methods=['GET'])
+@authenticate_jwt
+def get_user_details(uid):
+    try:
+        user = User.query.filter_by(id=uid).first()
+        if not user:
+            message = notFound.format("User")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        user_schema = UserSchema()
+        user_data, error = user_schema.dump(user)
+
+        json_count = Json.count_json(uid)
+        team_count = Team.count_teams(uid)
+
+        val = {
+            'id': user_data['id'],
+            'name': user_data['name'],
+            'surname': user_data['surname'],
+            'email': user_data['email'],
+            'login': user_data['login'],
+            'created': user_data['created'],
+            'updated': user_data['updated'],
+            'json_count': json_count,
+            'team_count': team_count
+        }
+
+        return response_with(resp.SUCCESS_200, value=val)
     except Exception as e:
         logging.error(e)
         return response_with(resp.SERVER_ERROR_500)

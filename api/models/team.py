@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
+from sqlalchemy.sql.functions import count
 from api.models.team_member_map import TeamMemberMap
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
@@ -46,6 +47,20 @@ class Team(db.Model):
         except Exception as e:
             logging.error(e)
             db.session.rollback()
+            raise
+
+    @staticmethod
+    def count_teams(uid):
+        """Counts the number of teams a user has access to
+        :param uid:
+        :return: int
+        """
+        try:
+            team_count = db.session.query(count(Team.id))\
+                .join(TeamMemberMap).filter(TeamMemberMap.user == uid).scalar()
+            return team_count
+        except Exception as e:
+            logging.error(e)
             raise
 
 
