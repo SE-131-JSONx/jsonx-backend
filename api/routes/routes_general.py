@@ -432,6 +432,25 @@ def update_team(team_id):
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/team', methods=['GET'])
+@authenticate_jwt
+def search_team():
+    try:
+        q = request.args.get('q')
+        team = Team.search(JWT.details['user_id'], q)
+
+        team_schema = TeamSchema()
+
+        values = {
+            "team": [team_schema.dump(t)[0] for t in team]
+        }
+
+        return response_with(resp.SUCCESS_200, value=values)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
 @route_path_general.route('/v1.0/team/<team_id>', methods=['DELETE'])
 @authenticate_jwt
 def delete_team(team_id):

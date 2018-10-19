@@ -39,6 +39,26 @@ class Team(db.Model):
             db.session.rollback()
             raise
 
+    @staticmethod
+    def search(uid, q):
+        """Fitlers and returns Teams by uid and search query
+        :param uid:
+        :param q: search query
+        :return: int
+        """
+        try:
+            # get team through team mapping path
+            query_team = db.session.query(Team.id).join(TeamMemberMap).filter(TeamMemberMap.user == uid)
+
+            team = db.session.query(Team) \
+                .filter(Team.id.in_(query_team))
+            if q is not None:
+                team = team.filter(Team.name.like('%{}%'.format(q)))
+            return team.all()
+        except Exception as e:
+            logging.error(e)
+            raise
+
     def delete(self):
         try:
             db.session.query(TeamMemberMap).filter(TeamMemberMap.team == self.id).delete()
