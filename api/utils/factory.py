@@ -4,7 +4,9 @@
 import logging
 import sys
 from flask import Flask
+from flask_cors import CORS
 from api.utils.database import db
+from api.utils.exception import AuthRequired, ExpiredSignatureError, DecodeError, BaseJWTError
 from api.utils.responses import response_with
 import api.utils.responses as resp
 from api.routes.routes_general import route_path_general
@@ -12,6 +14,7 @@ from api.routes.routes_general import route_path_general
 
 def create_app(config):
     app = Flask(__name__)
+    CORS(app)
 
     app.config.from_object(config)
 
@@ -36,6 +39,26 @@ def create_app(config):
     def not_found(e):
         logging.error(e)
         return response_with(resp.NOT_FOUND_HANDLER_404)
+
+    @app.errorhandler(AuthRequired)
+    def auth_required(e):
+        logging.error(e)
+        return response_with(resp.UNAUTHORIZED_403, message=e.message)
+
+    @app.errorhandler(DecodeError)
+    def decode_error(e):
+        logging.error(e)
+        return response_with(resp.UNAUTHORIZED_403, message=e.message)
+
+    @app.errorhandler(ExpiredSignatureError)
+    def expired_error(e):
+        logging.error(e)
+        return response_with(resp.UNAUTHORIZED_403, message=e.message)
+
+    @app.errorhandler(BaseJWTError)
+    def base_jwt_error(e):
+        logging.error(e)
+        return response_with(resp.UNAUTHORIZED_403, message=e.message)
 
     # END GLOBAL HTTP CONFIGURATIONS
 

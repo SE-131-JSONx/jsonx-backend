@@ -1,0 +1,6 @@
+required = "{} is required"
+invalid = "{} is invalid"
+expired = "{} is expired"
+notFound = "{} is not found"
+permission = "You do not have permission"
+exists = "{} is already in use"
