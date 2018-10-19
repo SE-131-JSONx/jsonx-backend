@@ -39,10 +39,11 @@ def delete_users(users):
 
 def create_json():
     _json = [{
+        'title': fake.last_name(),
         'data': fake.first_name()
     }]
     for j in _json:
-        Json(data=j['data']).create()
+        Json(title=j['title'], data=j['data']).create()
         j.update(get_json_id(j['data']))
     return _json
 
@@ -53,6 +54,7 @@ def get_json_id(data):
     json_data, error = json_schema.dump(_json)
     val = {
         'id': json_data['id'],
+        'title': json_data['title'],
         'data': json_data['data'],
         'created': json_data['created'],
         'updated': json_data['updated']

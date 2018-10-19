@@ -222,6 +222,25 @@ def get_json(json_id):
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/json', methods=['GET'])
+@authenticate_jwt
+def search_json():
+    try:
+        q = request.args.get('q')
+        _json = Json.search(JWT.details['user_id'], q)
+
+        json_schema = JsonSchema()
+
+        values = {
+            "json": [json_schema.dump(j)[0] for j in _json]
+        }
+
+        return response_with(resp.SUCCESS_200, value=values)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
 @route_path_general.route('/v1.0/json/<json_id>/team/<team_id>', methods=['POST'])
 @authenticate_jwt
 def give_team_json_access(json_id, team_id):

@@ -16,12 +16,14 @@ class Json(db.Model):
     __tablename__ = 'json'
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(255))
     data = db.Column(db.String(10000))
     created = db.Column(db.DateTime, server_default=db.func.now())
     updated = db.Column(db.DateTime, onupdate=db.func.now())
 
-    def __init__(self, data):
+    def __init__(self, data, title):
         self.data = data
+        self.title = title
 
     def create(self):
         db.session.add(self)
@@ -51,6 +53,33 @@ class Json(db.Model):
             logging.error(e)
             raise
 
+    @staticmethod
+    def search(uid, q):
+        """Fitlers and returns JSONs by uid and search query
+        :param uid:
+        :param q: search query
+        :return: int
+        """
+        try:
+            # get json through user mapping path
+            query_user_json = db.session.query(Json.id).join(JsonAccessMap).filter(JsonAccessMap.user == uid)
+
+            # get json through team mapping path
+            teams = db.session.query(Team.id).join(TeamMemberMap).filter(TeamMemberMap.user == uid)
+            query_team_json = db.session.query(Json.id).join(TeamJsonMap).filter(TeamJsonMap.team.in_(teams))
+
+            # count distinct json in team and user path
+            _json = db.session.query(Json) \
+                .filter(or_(Json.id.in_(query_user_json),
+                            Json.id.in_(query_team_json)))
+            if q is not None:
+                _json = _json.filter(or_(Json.title.like('%{}%'.format(q)),
+                                     Json.data.like('%{}%'.format(q))))
+            return _json.all()
+        except Exception as e:
+            logging.error(e)
+            raise
+
 
 class JsonSchema(ModelSchema):
     class Meta(ModelSchema.Meta):
@@ -58,6 +87,7 @@ class JsonSchema(ModelSchema):
         sqla_session = db.session
 
     id = fields.Integer(dump_only=True)
+    title = fields.String(required=True)
     data = fields.String(required=True)
     created = fields.String(dump_only=True)
     updated = fields.String(dump_only=True)
