@@ -241,6 +241,33 @@ def search_json():
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/json/<json_id>', methods=['DELETE'])
+@authenticate_jwt
+def delete_json(json_id):
+    try:
+        # validate json exists
+        json = Json.query.filter_by(id=json_id).first()
+        if not json:
+            message = notFound.format("JSON")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to json
+        access = JsonAccessMap.query\
+            .filter_by(json=json_id, user=JWT.details['user_id'], type=JsonAccessMapType.OWNER.value)\
+            .first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # delete json
+        json.delete()
+
+        return response_with(resp.SUCCESS_200)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
 @route_path_general.route('/v1.0/json/<json_id>/team/<team_id>', methods=['POST'])
 @authenticate_jwt
 def give_team_json_access(json_id, team_id):
