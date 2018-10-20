@@ -445,6 +445,9 @@ def search_team():
             "team": [team_schema.dump(t)[0] for t in team]
         }
 
+        for team in values["team"]:
+            team["members"] = TeamMemberMap.count_members(team["id"])
+
         return response_with(resp.SUCCESS_200, value=values)
     except Exception as e:
         logging.error(e)

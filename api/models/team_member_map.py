@@ -1,7 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import logging
 from sqlalchemy import ForeignKey
+from sqlalchemy.sql.functions import count
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -30,6 +32,20 @@ class TeamMemberMap(db.Model):
         except Exception as e:
             logging.error(e)
             db.session.rollback()
+            raise
+
+    @staticmethod
+    def count_members(tid):
+        """Count the number of members in a team
+        :param tid:
+        :return: int
+        """
+        try:
+            # get json through user mapping path
+            query_member_json = db.session.query(count(TeamMemberMap.id)).filter(TeamMemberMap.team == tid).scalar()
+            return query_member_json
+        except Exception as e:
+            logging.error(e)
             raise
 
     def delete(self):
