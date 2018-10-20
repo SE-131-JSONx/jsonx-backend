@@ -3,6 +3,7 @@
 import logging
 from sqlalchemy import or_
 from sqlalchemy.sql.functions import count
+from sqlalchemy.dialects.mysql import LONGTEXT
 from api.models.json_access_map import JsonAccessMap
 from api.models.team import Team
 from api.models.team_json_map import TeamJsonMap
@@ -17,7 +18,7 @@ class Json(db.Model):
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     title = db.Column(db.String(255))
-    data = db.Column(db.String(10000))
+    data = db.Column(LONGTEXT)
     created = db.Column(db.DateTime, server_default=db.func.now())
     updated = db.Column(db.DateTime, onupdate=db.func.now())
 
