@@ -246,8 +246,8 @@ def search_json():
 def delete_json(json_id):
     try:
         # validate json exists
-        json = Json.query.filter_by(id=json_id).first()
-        if not json:
+        _json = Json.query.filter_by(id=json_id).first()
+        if not _json:
             message = notFound.format("JSON")
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
@@ -260,7 +260,7 @@ def delete_json(json_id):
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # delete json
-        json.delete()
+        _json.delete()
 
         return response_with(resp.SUCCESS_200)
     except Exception as e:

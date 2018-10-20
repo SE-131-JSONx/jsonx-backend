@@ -80,6 +80,17 @@ class Json(db.Model):
             logging.error(e)
             raise
 
+    def delete(self):
+        try:
+            db.session.query(JsonAccessMap).filter(JsonAccessMap.json == self.id).delete()
+            db.session.query(TeamJsonMap).filter(TeamJsonMap.json == self.id).delete()
+            db.session.delete(self)
+            db.session.commit()
+        except Exception as e:
+            logging.error(e)
+            db.session.rollback()
+            raise
+
 
 class JsonSchema(ModelSchema):
     class Meta(ModelSchema.Meta):
