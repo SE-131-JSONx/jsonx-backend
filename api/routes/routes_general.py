@@ -446,7 +446,7 @@ def search_team():
         }
 
         for team in values["team"]:
-            team["members"] = TeamMemberMap.count_members(team["id"])
+            team["members"], team["access_level"] = TeamMemberMap.search_detail(team['id'], JWT.details['user_id'])
 
         return response_with(resp.SUCCESS_200, value=values)
     except Exception as e:

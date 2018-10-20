@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, and_
 from sqlalchemy.sql.functions import count
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
@@ -35,15 +35,19 @@ class TeamMemberMap(db.Model):
             raise
 
     @staticmethod
-    def count_members(tid):
+    def search_detail(tid, uid):
         """Count the number of members in a team
         :param tid:
-        :return: int
+        :return: int, int
         """
         try:
-            # get json through user mapping path
-            query_member_json = db.session.query(count(TeamMemberMap.id)).filter(TeamMemberMap.team == tid).scalar()
-            return query_member_json
+            # get team access details through user mapping path
+            query_member_count = db.session.query(count(TeamMemberMap.id)).filter(TeamMemberMap.team == tid).scalar()
+
+            query_access = db.session.query(TeamMemberMap.type).filter(and_(TeamMemberMap.user == uid,
+                                                                            TeamMemberMap.team == tid)).scalar()
+
+            return query_member_count, query_access
         except Exception as e:
             logging.error(e)
             raise
