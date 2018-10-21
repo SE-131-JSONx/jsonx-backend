@@ -800,13 +800,18 @@ class TestTeam(BaseTestCase):
         self.teams.append(data['team']['id'])
 
         team_data = {
-            "user": db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()
+            "users": [db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()]
+        }
+
+        body = {
+            "users": [team_data["users"][0]]
         }
 
         response = self.app.delete(
-            "/api/v1.0/team/{}/access/{}".format(data['team']['id'], team_data["user"]),
+            "/api/v1.0/team/{}/access".format(data['team']['id']),
             headers=headers,
             content_type="application/json",
+            data=json.dumps(body)
         )
 
         data = json.loads(response.data)
@@ -852,13 +857,18 @@ class TestTeam(BaseTestCase):
         self.teams.append(data['team']['id'])
 
         team_data = {
-            "user": db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()
+            "users": [db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()]
+        }
+
+        body = {
+            "users": [team_data["users"][0]]
         }
 
         response = self.app.delete(
-            "/api/v1.0/team/{}/access/{}".format(fake.ean13(), team_data["user"]),
+            "/api/v1.0/team/{}/access".format(fake.company()),
             headers=headers,
             content_type="application/json",
+            data=json.dumps(body)
         )
 
         self.assertEqual(404, response.status_code)
@@ -916,13 +926,18 @@ class TestTeam(BaseTestCase):
         }
 
         team_data = {
-            "user": db.session.query(User.id).filter(User.login == self.users[0]['login']).scalar()
+            "users": [db.session.query(User.id).filter(User.login == self.users[0]['login']).scalar()]
+        }
+
+        body = {
+            "users": [team_data["users"][0]]
         }
 
         response = self.app.delete(
-            "/api/v1.0/team/{}/access/{}".format(data['team']['id'], team_data["user"]),
+            "/api/v1.0/team/{}/access".format(data['team']['id']),
             headers=headers,
             content_type="application/json",
+            data=json.dumps(body)
         )
 
         data = json.loads(response.data)
@@ -968,10 +983,15 @@ class TestTeam(BaseTestCase):
         data = json.loads(response.data)
         self.teams.append(data['team']['id'])
 
+        body = {
+            "users": [fake.company()]
+        }
+
         response = self.app.delete(
-            "/api/v1.0/team/{}/access/{}".format(data['team']['id'], fake.ean13()),
+            "/api/v1.0/team/{}/access".format(data['team']['id']),
             headers=headers,
             content_type="application/json",
+            data=json.dumps(body)
         )
 
         self.assertEqual(404, response.status_code)

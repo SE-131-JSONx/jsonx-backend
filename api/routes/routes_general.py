@@ -676,21 +676,24 @@ def add_team_member(team_id):
         return response_with(resp.SERVER_ERROR_500)
 
 
-@route_path_general.route('/v1.0/team/<team_id>/access/<user_id>', methods=['DELETE'])
+@route_path_general.route('/v1.0/team/<team_id>/access', methods=['DELETE'])
 @authenticate_jwt
-def remove_team_member(team_id, user_id):
+def remove_team_member(team_id):
     try:
+        data = request.get_json()
+
         # validate team exists
         team = Team.query.filter_by(id=team_id).first()
         if not team:
             message = notFound.format("Team")
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
-        # validate user exists
-        user_exists = User.query.filter_by(id=user_id).first()
-        if not user_exists:
-            message = notFound.format("User")
-            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+        for user in data.get('users'):
+            # validate user exists
+            user_exists = User.query.filter_by(id=user).first()
+            if not user_exists:
+                message = notFound.format("User")
+                return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # validate access to team
         access = TeamMemberMap.query\
@@ -701,9 +704,10 @@ def remove_team_member(team_id, user_id):
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # if team member exists, delete
-        team_member = TeamMemberMap.query.filter_by(team=team_id, user=user_id).first()
-        if team_member:
-            team_member.delete()
+        for user in data.get('users'):
+            team_member = TeamMemberMap.query.filter_by(team=team_id, user=user).first()
+            if team_member:
+                team_member.delete()
 
         return response_with(resp.SUCCESS_200)
     except Exception as e:
