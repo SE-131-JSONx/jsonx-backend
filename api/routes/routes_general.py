@@ -586,9 +586,9 @@ def add_team_member(team_id):
         data = request.get_json()
 
         # require user
-        user = data.get("user")
-        if not user:
-            message = required.format("User")
+        users = data.get("users")
+        if not users:
+            message = required.format("Users")
             return response_with(resp.MISSING_PARAMETERS_422, message=message)
 
         # validate team exists
@@ -598,10 +598,11 @@ def add_team_member(team_id):
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # validate user exists
-        user_exists = User.query.filter_by(id=user).first()
-        if not user_exists:
-            message = notFound.format("User")
-            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+        for user in users:
+            user_exists = User.query.filter_by(id=user).first()
+            if not user_exists:
+                message = notFound.format("User")
+                return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # validate access to team
         access = TeamMemberMap.query\
@@ -612,18 +613,19 @@ def add_team_member(team_id):
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # if user does not have access, grant access
-        access_already_exists = TeamMemberMap.query.filter_by(team=team_id, user=user).first()
-        if not access_already_exists:
-            # add access
-            team_member_data = {
-                "user": user,
-                "team": team_id,
-                "_type": TeamMemberType.MEMBER.value
-            }
+        for user in users:
+            access_already_exists = TeamMemberMap.query.filter_by(team=team_id, user=user).first()
+            if not access_already_exists:
+                # add access
+                team_member_data = {
+                    "user": user,
+                    "team": team_id,
+                    "_type": TeamMemberType.MEMBER.value
+                }
 
-            team_member_map = TeamMemberMapSchema()
-            team_member, error = team_member_map.load(team_member_data)
-            team_member.create()
+                team_member_map = TeamMemberMapSchema()
+                team_member, error = team_member_map.load(team_member_data)
+                team_member.create()
 
         return response_with(resp.SUCCESS_200)
     except Exception as e:
