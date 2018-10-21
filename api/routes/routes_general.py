@@ -210,6 +210,7 @@ def get_json(json_id):
 
         val = {
             'id': json_data['id'],
+            'title': json_data['title'],
             'data': json_data['data'],
             'permission': json_access_data['type'],
             'created': json_data['created'],
@@ -217,6 +218,47 @@ def get_json(json_id):
         }
 
         return response_with(resp.SUCCESS_200, value=val)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/json/<jid>', methods=['PUT'])
+@authenticate_jwt
+def update_json(jid):
+    try:
+        data = request.get_json()
+
+        title = data.get("title")
+        if not title:
+            message = required.format("Title")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        _data = data.get("data")
+        if not _data:
+            message = required.format("Data")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        # validate user exists
+        _json = Json.query.filter_by(id=jid).first()
+        if not _json:
+            message = notFound.format("JSON")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to json
+        access = JsonAccessMap.query.filter_by(user=JWT.details['user_id'], json=jid).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # update json
+        _json.update(title, _data)
+
+        # response details
+        return get_json(jid)
+    except IntegrityError:
+        message = exists.format("Title")
+        return response_with(resp.INVALID_INPUT_422, message=message)
     except Exception as e:
         logging.error(e)
         return response_with(resp.SERVER_ERROR_500)

@@ -17,7 +17,7 @@ class Json(db.Model):
     __tablename__ = 'json'
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(255))
+    title = db.Column(db.String(255), unique=True)
     data = db.Column(LONGTEXT)
     created = db.Column(db.DateTime, server_default=db.func.now())
     updated = db.Column(db.DateTime, onupdate=db.func.now())
@@ -30,6 +30,22 @@ class Json(db.Model):
         db.session.add(self)
         db.session.commit()
         return self
+
+    def update(self, title, data):
+        try:
+            commit = False
+            if title != self.title:
+                self.title = title
+                commit = True
+            if data != self.data:
+                self.data = data
+                commit = True
+            if commit:
+                db.session.commit()
+        except Exception as e:
+            logging.error(e)
+            db.session.rollback()
+            raise
 
     @staticmethod
     def count_json(uid):
