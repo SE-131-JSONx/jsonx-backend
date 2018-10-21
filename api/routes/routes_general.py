@@ -552,6 +552,49 @@ def search_team():
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/team/<tid>/members', methods=['GET'])
+@authenticate_jwt
+def search_team_members(tid):
+    try:
+        q = request.args.get('q')
+
+        # validate team exists
+        team = Team.query.filter_by(id=tid).first()
+        if not team:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        access = TeamMemberMap.query.filter_by(team=tid, user=JWT.details['user_id']).first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        users = Team.search_members(q, tid)
+
+        user_schema = UserSchema()
+
+        values = {
+            "user": []
+        }
+        for u in users:
+            user_data = user_schema.dump(u)[0]
+            values['user'].append({
+                'id': user_data['id'],
+                'name': user_data['name'],
+                'surname': user_data['surname'],
+                'email': user_data['email'],
+                'login': user_data['login'],
+                'created': user_data['created'],
+                'updated': user_data['updated']
+            })
+
+        return response_with(resp.SUCCESS_200, value=values)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
 @route_path_general.route('/v1.0/team/<team_id>', methods=['DELETE'])
 @authenticate_jwt
 def delete_team(team_id):

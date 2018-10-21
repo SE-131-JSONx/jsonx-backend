@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
+from sqlalchemy import or_
 from sqlalchemy.sql.functions import count
 from api.models.team_member_map import TeamMemberMap
+from api.models.user import User
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -55,6 +57,27 @@ class Team(db.Model):
             if q is not None:
                 team = team.filter(Team.name.like('%{}%'.format(q)))
             return team.all()
+        except Exception as e:
+            logging.error(e)
+            raise
+
+    @staticmethod
+    def search_members(q, tid):
+        """Filters and returns team members by search query
+        :param q: search query
+        :param tid:
+        :return: User
+        """
+        try:
+            # get user through team mapping path
+            users = db.session.query(User).join(TeamMemberMap).filter(TeamMemberMap.team == tid)
+
+            if q is not None:
+                users = users.filter(or_(User.name.like('%{}%'.format(q)),
+                                         User.surname.like('%{}%'.format(q)),
+                                         User.email.like('%{}%'.format(q)),
+                                         User.login.like('%{}%'.format(q))))
+            return users.all()
         except Exception as e:
             logging.error(e)
             raise
