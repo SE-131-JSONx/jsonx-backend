@@ -587,7 +587,7 @@ class TestTeam(BaseTestCase):
         }
 
         team_data = {
-            "user": db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()
+            "users": [db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()]
         }
 
         response = self.app.post(
@@ -654,7 +654,7 @@ class TestTeam(BaseTestCase):
         }
 
         team_data = {
-            "user": db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()
+            "users": [db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()]
         }
 
         response = self.app.post(
@@ -705,7 +705,7 @@ class TestTeam(BaseTestCase):
         self.teams.append(data['team']['id'])
 
         team_data = {
-            "user": fake.ean13()
+            "users": [fake.ean13()]
         }
 
         response = self.app.post(
@@ -755,7 +755,7 @@ class TestTeam(BaseTestCase):
         self.teams.append(data['team']['id'])
 
         team_data = {
-            "user": db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()
+            "users": [db.session.query(User.id).filter(User.login == self.users[1]['login']).scalar()]
         }
 
         response = self.app.post(
