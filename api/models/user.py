@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
+from sqlalchemy import or_
 
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
@@ -54,6 +55,26 @@ class User(db.Model):
         except Exception as e:
             logging.error(e)
             db.session.rollback()
+            raise
+
+    @staticmethod
+    def search(q):
+        """Filters and returns users by search query
+        :param q: search query
+        :return: User
+        """
+        try:
+            # get json through user mapping path
+            user = db.session.query(User)
+
+            if q is not None:
+                user = user.filter(or_(User.name.like('%{}%'.format(q)),
+                                       User.surname.like('%{}%'.format(q)),
+                                       User.email.like('%{}%'.format(q)),
+                                       User.login.like('%{}%'.format(q))))
+            return user.limit(50).all()
+        except Exception as e:
+            logging.error(e)
             raise
 
     @staticmethod

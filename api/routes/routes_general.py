@@ -140,6 +140,35 @@ def update_user(uid):
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/user', methods=['GET'])
+@authenticate_jwt
+def search_user():
+    try:
+        q = request.args.get('q')
+        user = User.search(q)
+
+        user_schema = UserSchema()
+
+        values = {
+            "user": []
+        }
+        for u in user:
+            user_data = user_schema.dump(u)[0]
+            values['user'].append({
+                'id': user_data['id'],
+                'name': user_data['name'],
+                'surname': user_data['surname'],
+                'email': user_data['email'],
+                'login': user_data['login'],
+                'created': user_data['created'],
+                'updated': user_data['updated']
+            })
+        return response_with(resp.SUCCESS_200, value=values)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
 """
 JSON
 """
