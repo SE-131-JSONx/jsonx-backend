@@ -422,6 +422,87 @@ def remove_team_json_access(json_id, team_id):
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/json/<jid>/group', methods=['DELETE'])
+@authenticate_jwt
+def remove_group(jid):
+    try:
+        data = request.get_json()
+        users = data.get('users', [])
+        teams = data.get('teams', [])
+
+        if not users and not teams:
+            message = required.format("Users or teams")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        # validate json exists
+        _json = Json.query.filter_by(id=jid).first()
+        if not _json:
+            message = notFound.format("JSON")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        invalid_users = validate_users(users)
+        if invalid_users:
+            return invalid_users
+
+        invalid_teams = validate_teams(teams)
+        if invalid_teams:
+            return invalid_teams
+
+        # if user json map exists, delete
+        for user in users:
+            user_json_map = JsonAccessMap.query.filter_by(json=jid, user=user).first()
+            if user_json_map:
+                user_json_map.delete()
+
+        # if team json map exists, delete
+        for team in teams:
+            team_json_map = TeamJsonMap.query.filter_by(json=jid, team=team).first()
+            if team_json_map:
+                team_json_map.delete()
+
+        return response_with(resp.SUCCESS_200)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
+def validate_teams(teams):
+    """Helper for validating that teams exist and the user has access to the teams.
+    :param teams:
+    :return: None or Error
+    """
+    for team in teams:
+        # validate team exists
+        team_exists = Team.query.filter_by(id=team).first()
+        if not team_exists:
+            message = notFound.format("Team")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        access = TeamMemberMap.query \
+            .filter_by(team=team, user=JWT.details['user_id']) \
+            .first()
+        if not access:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+
+def validate_users(users):
+    """Helper for validating that users exist and that the JWT user is not present in the list
+    :param users:
+    :return: None or Error
+    """
+    for user in users:
+        if user == JWT.details['user_id']:
+            message = invalid.format("User")
+            return response_with(resp.INVALID_INPUT_422, message=message)
+        # validate user exists
+        user_exists = User.query.filter_by(id=user).first()
+        if not user_exists:
+            message = notFound.format("User")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+
 """
 TEAM
 """

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import logging
 from sqlalchemy import ForeignKey
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
@@ -26,6 +26,14 @@ class JsonAccessMap(db.Model):
         db.session.add(self)
         db.session.commit()
         return self
+
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except Exception as e:
+            logging.error(e)
+            raise
 
 
 class JsonAccessMapSchema(ModelSchema):
