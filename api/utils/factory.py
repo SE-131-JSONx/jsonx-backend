@@ -14,7 +14,7 @@ from api.routes.routes_general import route_path_general
 
 def create_app(config):
     app = Flask(__name__)
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     app.config.from_object(config)
 
