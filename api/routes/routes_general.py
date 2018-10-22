@@ -17,6 +17,7 @@ from api.utils.constants import notFound, permission, required, exists, invalid
 from api.utils.enums import TeamMemberType, JsonAccessMapType
 from api.utils.responses import response_with
 from api.utils import responses as resp
+from api.utils.validation import validate_teams, validate_users
 
 route_path_general = Blueprint("route_path_general", __name__)
 
@@ -466,7 +467,7 @@ def remove_group(jid):
         return response_with(resp.SERVER_ERROR_500)
 
 
-@route_path_general.route('/v1.0/json/group/<jid>', methods=['POST'])
+@route_path_general.route('/v1.0/json/<jid>/group', methods=['POST'])
 @authenticate_jwt
 def add_group(jid):
     try:
@@ -526,43 +527,6 @@ def add_group(jid):
     except Exception as e:
         logging.error(e)
         return response_with(resp.SERVER_ERROR_500)
-
-
-def validate_teams(teams):
-    """Helper for validating that teams exist and the user has access to the teams.
-    :param teams:
-    :return: None or Error
-    """
-    for team in teams:
-        # validate team exists
-        team_exists = Team.query.filter_by(id=team).first()
-        if not team_exists:
-            message = notFound.format("Team")
-            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
-
-        # validate access to team
-        access = TeamMemberMap.query \
-            .filter_by(team=team, user=JWT.details['user_id']) \
-            .first()
-        if not access:
-            message = permission
-            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
-
-
-def validate_users(users):
-    """Helper for validating that users exist and that the JWT user is not present in the list
-    :param users:
-    :return: None or Error
-    """
-    for user in users:
-        if user == JWT.details['user_id']:
-            message = invalid.format("User")
-            return response_with(resp.INVALID_INPUT_422, message=message)
-        # validate user exists
-        user_exists = User.query.filter_by(id=user).first()
-        if not user_exists:
-            message = notFound.format("User")
-            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
 
 """
