@@ -508,7 +508,6 @@ def add_group(jid):
                 user_json, error = json_access_map.load(json_access_data)
                 user_json.create()
 
-        # if team json map does not exist, create
         for team in teams:
             # if team does not have access, grant access
             access_already_exists = TeamJsonMap.query.filter_by(team=team, json=jid).first()
