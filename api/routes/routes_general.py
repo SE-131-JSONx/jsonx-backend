@@ -466,7 +466,7 @@ def remove_group(jid):
         return response_with(resp.SERVER_ERROR_500)
 
 
-@route_path_general.route('/v1.0/json/<jid>/group', methods=['POST'])
+@route_path_general.route('/v1.0/json/group/<jid>', methods=['POST'])
 @authenticate_jwt
 def add_group(jid):
     try:
