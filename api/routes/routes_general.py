@@ -363,7 +363,7 @@ def give_team_json_access(json_id, team_id):
             message = permission
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
-        # if user does not have access, grant access
+        # if team does not have access, grant access
         access_already_exists = TeamJsonMap.query.filter_by(team=team_id, json=json_id).first()
         if not access_already_exists:
             # add access
@@ -459,6 +459,69 @@ def remove_group(jid):
             team_json_map = TeamJsonMap.query.filter_by(json=jid, team=team).first()
             if team_json_map:
                 team_json_map.delete()
+
+        return response_with(resp.SUCCESS_200)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
+@route_path_general.route('/v1.0/json/<jid>/group', methods=['POST'])
+@authenticate_jwt
+def add_group(jid):
+    try:
+        data = request.get_json()
+        users = data.get('users', [])
+        teams = data.get('teams', [])
+
+        if not users and not teams:
+            message = required.format("Users or teams")
+            return response_with(resp.MISSING_PARAMETERS_422, message=message)
+
+        # validate json exists
+        _json = Json.query.filter_by(id=jid).first()
+        if not _json:
+            message = notFound.format("JSON")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        invalid_users = validate_users(users)
+        if invalid_users:
+            return invalid_users
+
+        invalid_teams = validate_teams(teams)
+        if invalid_teams:
+            return invalid_teams
+
+        # if user json map does not exist, create
+        for user in users:
+            # if user does not have access, grant access
+            access_already_exists = JsonAccessMap.query.filter_by(user=user, json=jid).first()
+            if not access_already_exists:
+                # add access
+                json_access_data = {
+                    "user": user,
+                    "json": jid,
+                    "_type": 1
+                }
+
+                json_access_map = JsonAccessMapSchema()
+                user_json, error = json_access_map.load(json_access_data)
+                user_json.create()
+
+        # if team json map does not exist, create
+        for team in teams:
+            # if team does not have access, grant access
+            access_already_exists = TeamJsonMap.query.filter_by(team=team, json=jid).first()
+            if not access_already_exists:
+                # add access
+                team_access_data = {
+                    "team": team,
+                    "json": jid,
+                }
+
+                team_json_map = TeamJsonMapSchema()
+                team_json, error = team_json_map.load(team_access_data)
+                team_json.create()
 
         return response_with(resp.SUCCESS_200)
     except Exception as e:
