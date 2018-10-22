@@ -313,6 +313,55 @@ def search_json():
         return response_with(resp.SERVER_ERROR_500)
 
 
+@route_path_general.route('/v1.0/json/<jid>/group', methods=['GET'])
+@authenticate_jwt
+def search_json_access_users(jid):
+    try:
+        q = request.args.get('q')
+
+        # validate json exists
+        _json = Json.query.filter_by(id=jid).first()
+        if not _json:
+            message = notFound.format("Json")
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        # validate access to team
+        teams = TeamMemberMap.query.filter_by(user=JWT.details['user_id']).all()
+        access_by_team = None
+        for team in teams:
+            access_by_team = TeamJsonMap.query.filter_by(json=jid, team=team.id).first() if TeamJsonMap.query.filter_by(json=jid, team=team.id).first() else access_by_team
+
+        access_by_user = JsonAccessMap.query.filter_by(json=jid, user=JWT.details['user_id']).first()
+        if not access_by_team and not access_by_user:
+            message = permission
+            return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
+
+        users = Json.search_members(q, jid)
+
+        user_schema = UserSchema()
+
+        values = {
+            "user": []
+        }
+        for u in users:
+            user_data = user_schema.dump(u)[0]
+            values['user'].append({
+                'id': user_data['id'],
+                'name': user_data['name'],
+                'surname': user_data['surname'],
+                'email': user_data['email'],
+                'login': user_data['login'],
+                'created': user_data['created'],
+                'updated': user_data['updated']
+            })
+
+        return response_with(resp.SUCCESS_200, value=values)
+    except Exception as e:
+        logging.error(e)
+        return response_with(resp.SERVER_ERROR_500)
+
+
+
 @route_path_general.route('/v1.0/json/<json_id>', methods=['DELETE'])
 @authenticate_jwt
 def delete_json(json_id):

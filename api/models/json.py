@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from sqlalchemy.sql.functions import count
 from sqlalchemy.dialects.mysql import LONGTEXT
 from api.models.json_access_map import JsonAccessMap
 from api.models.team import Team
 from api.models.team_json_map import TeamJsonMap
 from api.models.team_member_map import TeamMemberMap
+from api.models.user import User
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -93,6 +94,40 @@ class Json(db.Model):
                 _json = _json.filter(or_(Json.title.like('%{}%'.format(q)),
                                      Json.data.like('%{}%'.format(q))))
             return _json.all()
+        except Exception as e:
+            logging.error(e)
+            raise
+
+    @staticmethod
+    def search_members(q, jid):
+        """Filters and returns Json members by search query
+        :param q: search query
+        :param jid:
+        :return: User
+        """
+        try:
+            # get user through team mapping path
+            team_access = db.session.query(TeamMemberMap.user)\
+                .join(TeamJsonMap,
+                      and_(TeamJsonMap.team == TeamMemberMap.team,
+                           TeamJsonMap.json == jid))\
+                .subquery()
+
+            user_access = db.session.query(User.id) \
+                .join(JsonAccessMap,
+                      and_(JsonAccessMap.json == jid,
+                           JsonAccessMap.user == User.id)) \
+                .subquery()
+
+            users = db.session.query(User).filter(or_(User.id.in_(team_access),
+                                                      User.id.in_(user_access)))
+
+            if q is not None:
+                users = users.filter(or_(User.name.like('%{}%'.format(q)),
+                                         User.surname.like('%{}%'.format(q)),
+                                         User.email.like('%{}%'.format(q)),
+                                         User.login.like('%{}%'.format(q))))
+            return users.all()
         except Exception as e:
             logging.error(e)
             raise
