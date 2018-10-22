@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from sqlalchemy import or_
-
+from api.utils.auth import JWT
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -65,7 +65,7 @@ class User(db.Model):
         """
         try:
             # get json through user mapping path
-            user = db.session.query(User)
+            user = db.session.query(User).filter(User.id != JWT.details['user_id'])
 
             if q is not None:
                 user = user.filter(or_(User.name.like('%{}%'.format(q)),

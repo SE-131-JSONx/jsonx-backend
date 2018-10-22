@@ -9,6 +9,7 @@ from api.models.team import Team
 from api.models.team_json_map import TeamJsonMap
 from api.models.team_member_map import TeamMemberMap
 from api.models.user import User
+from api.utils.auth import JWT
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -119,8 +120,9 @@ class Json(db.Model):
                            JsonAccessMap.user == User.id)) \
                 .subquery()
 
-            users = db.session.query(User).filter(or_(User.id.in_(team_access),
-                                                      User.id.in_(user_access)))
+            users = db.session.query(User).filter(and_(or_(User.id.in_(team_access),
+                                                           User.id.in_(user_access)),
+                                                       User.id != JWT.details['user_id']))
 
             if q is not None:
                 users = users.filter(or_(User.name.like('%{}%'.format(q)),

@@ -5,6 +5,7 @@ from sqlalchemy import or_
 from sqlalchemy.sql.functions import count
 from api.models.team_member_map import TeamMemberMap
 from api.models.user import User
+from api.utils.auth import JWT
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
@@ -70,7 +71,10 @@ class Team(db.Model):
         """
         try:
             # get user through team mapping path
-            users = db.session.query(User).join(TeamMemberMap).filter(TeamMemberMap.team == tid)
+            users = db.session.query(User)\
+                .join(TeamMemberMap)\
+                .filter(TeamMemberMap.team == tid)\
+                .filter(User.id != JWT.details['user_id'])
 
             if q is not None:
                 users = users.filter(or_(User.name.like('%{}%'.format(q)),
