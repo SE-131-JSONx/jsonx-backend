@@ -221,8 +221,8 @@ def save_json():
 def get_json(json_id):
     try:
         # validate json exists
-        json = Json.query.filter_by(id=json_id).first()
-        if not json:
+        json_ = Json.query.filter_by(id=json_id).first()
+        if not json_:
             message = notFound.format("JSON")
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
@@ -270,8 +270,8 @@ def update_json(jid):
             return response_with(resp.MISSING_PARAMETERS_422, message=message)
 
         # validate user exists
-        _json = Json.query.filter_by(id=jid).first()
-        if not _json:
+        json_ = Json.query.filter_by(id=jid).first()
+        if not json_:
             message = notFound.format("JSON")
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
@@ -282,7 +282,7 @@ def update_json(jid):
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
         # update json
-        _json.update(title, _data)
+        json_.update(title, _data)
 
         # response details
         return get_json(jid)
@@ -299,12 +299,12 @@ def update_json(jid):
 def search_json():
     try:
         q = request.args.get('q')
-        _json = Json.search(JWT.details['user_id'], q)
+        json_ = Json.search(JWT.details['user_id'], q)
 
         json_schema = JsonSchema()
 
         values = {
-            "json": [json_schema.dump(j)[0] for j in _json]
+            "json": [json_schema.dump(j)[0] for j in json_]
         }
 
         return response_with(resp.SUCCESS_200, value=values)
@@ -329,7 +329,8 @@ def search_json_access_users(jid):
         teams = TeamMemberMap.query.filter_by(user=JWT.details['user_id']).all()
         access_by_team = None
         for team in teams:
-            access_by_team = TeamJsonMap.query.filter_by(json=jid, team=team.id).first() if TeamJsonMap.query.filter_by(json=jid, team=team.id).first() else access_by_team
+            access_by_team = TeamJsonMap.query.filter_by(json=jid, team=team.id).first() \
+                if TeamJsonMap.query.filter_by(json=jid, team=team.id).first() else access_by_team
 
         access_by_user = JsonAccessMap.query.filter_by(json=jid, user=JWT.details['user_id']).first()
         if not access_by_team and not access_by_user:
@@ -359,7 +360,6 @@ def search_json_access_users(jid):
     except Exception as e:
         logging.error(e)
         return response_with(resp.SERVER_ERROR_500)
-
 
 
 @route_path_general.route('/v1.0/json/<json_id>', methods=['DELETE'])
@@ -394,8 +394,8 @@ def delete_json(json_id):
 def give_team_json_access(json_id, team_id):
     try:
         # validate json exists
-        json = Json.query.filter_by(id=json_id).first()
-        if not json:
+        json_ = Json.query.filter_by(id=json_id).first()
+        if not json_:
             message = notFound.format("JSON")
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
@@ -442,8 +442,8 @@ def give_team_json_access(json_id, team_id):
 def remove_team_json_access(json_id, team_id):
     try:
         # validate json exists
-        json = Json.query.filter_by(id=json_id).first()
-        if not json:
+        json_ = Json.query.filter_by(id=json_id).first()
+        if not json_:
             message = notFound.format("JSON")
             return response_with(resp.NOT_FOUND_HANDLER_404, message=message)
 
