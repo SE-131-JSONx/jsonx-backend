@@ -187,8 +187,8 @@ def save_json():
 
         # save json in json table
         json_schema = JsonSchema()
-        _json, error = json_schema.load(data)
-        result = json_schema.dump(_json.create()).data
+        json_, error = json_schema.load(data)
+        result = json_schema.dump(json_.create()).data
 
         # save an entry in json_access_map
         json_access_schema = JsonAccessMapSchema()
