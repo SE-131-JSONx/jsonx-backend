@@ -2,10 +2,10 @@ SE-131 Group Project - JSONx
 [![Build Status](https://travis-ci.org/SE-131-JSONx/jsonx-be.svg?branch=cit)](https://travis-ci.org/SE-131-JSONx/jsonx-be)
 
 Group 3
-Ben Bierman
-Salvatore Nicosia
-Kyuhak Yuk
-Ben Krig
+Ben Bierman,
+Salvatore Nicosia,
+Kyuhak Yuk,
+Ben Krig,
 
 
 Other modules used are listed below; 
