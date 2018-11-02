@@ -13,6 +13,7 @@ from api.utils.auth import JWT
 from api.utils.database import db
 from marshmallow_sqlalchemy import ModelSchema
 from marshmallow import fields
+from api.utils.enums import JsonAccessMapType
 
 
 class Json(db.Model):
@@ -50,7 +51,7 @@ class Json(db.Model):
             raise
 
     @staticmethod
-    def count_json(uid):
+    def count_accessible_json(uid):
         """Count the number of JSONs a user has access to
         :param uid:
         :return: int
@@ -65,6 +66,52 @@ class Json(db.Model):
 
             # count distinct json in team and user path
             json_count = db.session.query(count(Json.id.distinct()))\
+                .filter(or_(Json.id.in_(query_user_json),
+                            Json.id.in_(query_team_json))).scalar()
+            return json_count
+        except Exception as e:
+            logging.error(e)
+            raise
+
+    @staticmethod
+    def count_owned_json(uid):
+        """Count the number of JSONs a user owns
+        :param uid:
+        :return: int
+        """
+        try:
+            # get json through user mapping path
+            query_user_json = db.session.query(Json.id) \
+                .join(JsonAccessMap) \
+                .filter(and_(JsonAccessMap.user == uid,
+                             JsonAccessMap.type == JsonAccessMapType.OWNER.value))
+            # count distinct json
+            json_count = db.session.query(count(Json.id.distinct())) \
+                .filter(Json.id.in_(query_user_json)).scalar()
+            return json_count
+        except Exception as e:
+            logging.error(e)
+            raise
+
+    @staticmethod
+    def count_shared_json(uid):
+        """Count the number of JSONs a user has access to
+        :param uid:
+        :return: int
+        """
+        try:
+            # get json through user mapping path
+            query_user_json = db.session.query(Json.id) \
+                .join(JsonAccessMap) \
+                .filter(and_(JsonAccessMap.user == uid,
+                             JsonAccessMap.type == JsonAccessMapType.READ.value))
+
+            # get json through team mapping path
+            teams = db.session.query(Team.id).join(TeamMemberMap).filter(TeamMemberMap.user == uid)
+            query_team_json = db.session.query(Json.id).join(TeamJsonMap).filter(TeamJsonMap.team.in_(teams))
+
+            # count distinct json in team and user path
+            json_count = db.session.query(count(Json.id.distinct())) \
                 .filter(or_(Json.id.in_(query_user_json),
                             Json.id.in_(query_team_json))).scalar()
             return json_count

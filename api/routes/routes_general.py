@@ -74,7 +74,9 @@ def get_user_details(uid):
         user_schema = UserSchema()
         user_data, error = user_schema.dump(user)
 
-        json_count = Json.count_json(uid)
+        json_count = Json.count_accessible_json(uid)
+        owned_json_count = Json.count_owned_json(uid)
+        shared_json_count = Json.count_shared_json(uid)
         team_count = Team.count_teams(uid)
 
         val = {
@@ -86,7 +88,9 @@ def get_user_details(uid):
             'created': user_data['created'],
             'updated': user_data['updated'],
             'json_count': json_count,
-            'team_count': team_count
+            'team_count': team_count,
+            'owned_json_count': owned_json_count,
+            'shared_json_count': shared_json_count
         }
 
         return response_with(resp.SUCCESS_200, value=val)
